@@ -19,29 +19,29 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"anynone.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"nullhunt.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 <meta name="description" content="phalcon基于di容器管理所有服务，session也做为服务被引入。正常情况下要实现自定义session_id只要在session_start前使用session_id函数设置即可。但是，一般逻辑是先检查session是否存在用户信息，如果存在表示登陆，不存在表示游客。要获取session信息必须先session_start，因此想要真正自定义session_id，要在返回cookie头前对s">
 <meta property="og:type" content="article">
 <meta property="og:title" content="phalcon自定义session_id">
-<meta property="og:url" content="https://anynone.github.io/2021/09/27/phalcon-session-md/index.html">
-<meta property="og:site_name" content="anynone">
+<meta property="og:url" content="https://nullhunt.github.io/2021/09/27/phalcon-session-md/index.html">
+<meta property="og:site_name" content="nullhunt">
 <meta property="og:description" content="phalcon基于di容器管理所有服务，session也做为服务被引入。正常情况下要实现自定义session_id只要在session_start前使用session_id函数设置即可。但是，一般逻辑是先检查session是否存在用户信息，如果存在表示登陆，不存在表示游客。要获取session信息必须先session_start，因此想要真正自定义session_id，要在返回cookie头前对s">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-09-27T15:27:42.000Z">
 <meta property="article:modified_time" content="2024-12-13T18:30:47.333Z">
-<meta property="article:author" content="山丘之王">
+<meta property="article:author" content="山丘">
 <meta property="article:tag" content="php,session">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://anynone.github.io/2021/09/27/phalcon-session-md/">
+<link rel="canonical" href="https://nullhunt.github.io/2021/09/27/phalcon-session-md/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://anynone.github.io/2021/09/27/phalcon-session-md/","path":"2021/09/27/phalcon-session-md/","title":"phalcon自定义session_id"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://nullhunt.github.io/2021/09/27/phalcon-session-md/","path":"2021/09/27/phalcon-session-md/","title":"phalcon自定义session_id"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>phalcon自定义session_id | anynone</title>
+<title>phalcon自定义session_id | nullhunt</title>
   
 
 
@@ -70,7 +70,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">anynone</h1>
+      <h1 class="site-title">nullhunt</h1>
       <i class="logo-line"></i>
     </a>
   </div>
@@ -122,7 +122,7 @@
 
         <div class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">山丘之王</p>
+  <p class="site-author-name" itemprop="name">山丘</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
@@ -178,16 +178,16 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://anynone.github.io/2021/09/27/phalcon-session-md/">
+    <link itemprop="mainEntityOfPage" href="https://nullhunt.github.io/2021/09/27/phalcon-session-md/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="山丘之王">
+      <meta itemprop="name" content="山丘">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="anynone">
+      <meta itemprop="name" content="nullhunt">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -276,7 +276,7 @@ php提供了一个函数session_regenerate_id（），允许使用新生成的�
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">山丘之王</span>
+  <span class="author" itemprop="copyrightHolder">山丘</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
