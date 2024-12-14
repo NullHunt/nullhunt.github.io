@@ -124,12 +124,12 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -172,7 +172,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://nullhunt.github.io/2022/07/12/gin-frame-init/">
+    <link itemprop="mainEntityOfPage" href="https://nullhunt.github.io/2022/09/29/20220420-gdb/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -185,7 +185,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/07/12/gin-frame-init/" class="post-title-link" itemprop="url">gin框架环境搭建</a>
+          <a href="/2022/09/29/20220420-gdb/" class="post-title-link" itemprop="url">gdb常用操作</a>
         </h2>
 
         <div class="post-meta-container">
@@ -196,7 +196,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-07-12 11:07:40" itemprop="dateCreated datePublished" datetime="2022-07-12T11:07:40+08:00">2022-07-12</time>
+      <time title="创建时间：2022-09-29 23:11:21" itemprop="dateCreated datePublished" datetime="2022-09-29T23:11:21+08:00">2022-09-29</time>
     </span>
       <span class="post-meta-item">
         <span class="post-meta-item-icon">
@@ -216,59 +216,72 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>gin框架目前应该是go web开发用的最多的一款框架，目前已经有60k星。趁着今天请假，从头搭建个gin项目mvc骨架。</p>
-<blockquote>
-<p>新建项目，按照充血模型新建gin框架开发骨架,按照开发习惯建立些空的文件</p>
+          <blockquote>
+<p>查看core文件是否生成，返回0表示不生成，一般是unlimited不显示core文件大小，设置过小可能会截断core文件，调试时会报错</p>
 </blockquote>
-<p><img src="/images/gin-frame-init/1.jpg" alt="1"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -c</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>开启core文件生成</p>
+</blockquote>
 <ul>
-<li><p>bin目录: main函数位置,以及后续可能的可执行文件源代码</p>
-</li>
-<li><p>config目录: 配置文件已经配置加载代码</p>
-</li>
-<li><p>controller: 控制器目录</p>
-</li>
-<li><p>model: 模型目录,包含dao和对应的方法</p>
-</li>
-<li><p>router: 路由配置目录</p>
-</li>
-<li><p>service: 服务层,也可以改为domain</p>
-<p>这里并没有增加middleware层,随用随加.如果可预见的中间件不多则放在router层一起</p>
-</li>
+<li>临时生效</li>
 </ul>
-<blockquote>
-<p>main.go代码</p>
-</blockquote>
-<p>main主要做路由注册,配置初始化,http监听,数据库初始化等.对应调用router,config,model层</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	engine := gin.Default()</span><br><span class="line">	<span class="comment">// 初始化配置文件</span></span><br><span class="line">	config.InitConfig()</span><br><span class="line">	<span class="comment">// 注册路由</span></span><br><span class="line">	router.RegisterRouter(engine)</span><br><span class="line">	<span class="comment">// 初始化模型,数据库连接</span></span><br><span class="line">	model.InitDb()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := engine.Run(config.Properties.App.Host + <span class="string">&quot;:&quot;</span> + strconv.Itoa(config.Properties.App.Port)); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Println(err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -c unlimited   // 当前启动进程生效,临时生效</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>永久生效（不建议，或者第一个参数指定为具体执行用户）</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 编辑  /etc/security/limits.conf</span></span><br><span class="line"><span class="comment">###### 所有进程生效的写法,不建议</span></span><br><span class="line"><span class="comment">#* soft core unlimited</span></span><br><span class="line"><span class="comment">#* hard core unlimited</span></span><br><span class="line"><span class="comment">##### 指定www-data用户执行的进程不限值core文件大小</span></span><br><span class="line">www-data soft core unlimited</span><br><span class="line">www-data hard core unlimited</span><br></pre></td></tr></table></figure>
 
 <blockquote>
-<p>config层: 主要做配置文件读取, 本身和任何层不发生关联,完全由其他层调用,任意层次结构都可以调用config配置,后续方便各个模块读取配置文件,这里使用viper进行配置文件读取</p>
+<p>gdb加载core文件</p>
 </blockquote>
-<p>配置文件采用yaml,示例配置文件如下</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">app:</span></span><br><span class="line">  <span class="attr">serviceName:</span> <span class="string">demo_learn</span></span><br><span class="line">  <span class="attr">appMode:</span> <span class="string">release</span></span><br><span class="line">  <span class="attr">host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span></span><br><span class="line"><span class="attr">db:</span></span><br><span class="line">  <span class="attr">driverName:</span> <span class="string">&quot;mysql&quot;</span></span><br><span class="line">  <span class="attr">dsn:</span> <span class="string">&quot;root:123456@tcp(172.17.0.2:3306)/gorm?charset=utf8&amp;parseTime=True&amp;loc=Local&quot;</span></span><br><span class="line">  <span class="attr">defaultStringSize:</span> <span class="number">100</span></span><br><span class="line">  <span class="attr">dontSupportNullAsDefaultValue:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
-
-<p>config配置代码如下</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> config</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;github.com/spf13/viper&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> DbConfig <span class="keyword">struct</span> &#123;</span><br><span class="line">	DriverName                    <span class="keyword">string</span></span><br><span class="line">	DSN                           <span class="keyword">string</span></span><br><span class="line">	DefaultStringSize             <span class="keyword">int</span></span><br><span class="line">	DontSupportNullAsDefaultValue <span class="keyword">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> AppConfig <span class="keyword">struct</span> &#123;</span><br><span class="line">	ServiceName <span class="keyword">string</span></span><br><span class="line">	AppMode     <span class="keyword">string</span></span><br><span class="line">	Host        <span class="keyword">string</span></span><br><span class="line">	Port        <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Config <span class="keyword">struct</span> &#123;</span><br><span class="line">	App AppConfig</span><br><span class="line">	Db  DbConfig</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> Properties Config</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InitConfig</span><span class="params">()</span></span> &#123;</span><br><span class="line">	viper.SetTypeByDefaultValue(<span class="literal">true</span>)</span><br><span class="line">	setDefaultProperties()</span><br><span class="line">	viper.SetConfigName(<span class="string">&quot;config&quot;</span>)</span><br><span class="line">	viper.SetConfigType(<span class="string">&quot;yaml&quot;</span>)</span><br><span class="line">	viper.AddConfigPath(<span class="string">&quot;config&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := viper.ReadInConfig(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> _, ok := err.(viper.ConfigFileNotFoundError); ok &#123;</span><br><span class="line">			<span class="built_in">panic</span>(<span class="string">&quot;配置文件未找到&quot;</span>)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="built_in">panic</span>(err)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	err := viper.Unmarshal(&amp;Properties)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	log.Println(Properties)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">setDefaultProperties</span><span class="params">()</span></span> &#123;</span><br><span class="line">	viper.SetDefault(<span class="string">&quot;app&quot;</span>, AppConfig&#123;</span><br><span class="line">		ServiceName: <span class="string">&quot;demoervicname&quot;</span>,</span><br><span class="line">		AppMode:     <span class="string">&quot;debug&quot;</span>,</span><br><span class="line">		Host:        <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">		Port:        <span class="number">8080</span>,</span><br><span class="line">	&#125;)</span><br><span class="line">	viper.SetDefault(<span class="string">&quot;db&quot;</span>, DbConfig&#123;</span><br><span class="line">		DriverName:                    <span class="string">&quot;mysql&quot;</span>,</span><br><span class="line">		DSN:                           <span class="string">&quot;&quot;</span>,</span><br><span class="line">		DefaultStringSize:             <span class="number">255</span>,</span><br><span class="line">		DontSupportNullAsDefaultValue: <span class="literal">true</span>,</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gdb 可执行文件  core文件</span></span><br><span class="line"><span class="comment"># 例子： gdb php-fpm core.1234</span></span><br></pre></td></tr></table></figure>
 
 <blockquote>
-<p>router层比较简单,负责路由注册,中间件加载操作</p>
+<p>gdb命令</p>
 </blockquote>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> router</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;awesomeProject1/controller&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/gin-gonic/gin&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">RegisterRouter</span><span class="params">(engine *gin.Engine)</span> *<span class="title">gin</span>.<span class="title">Engine</span></span> &#123;</span><br><span class="line"></span><br><span class="line">	engine.Use(<span class="function"><span class="keyword">func</span><span class="params">(context *gin.Context)</span></span> &#123;</span><br><span class="line">		<span class="comment">// 中间件代码</span></span><br><span class="line">		<span class="comment">////////</span></span><br><span class="line">		context.Next()</span><br><span class="line">	&#125;)</span><br><span class="line">    <span class="comment">// 路由注册</span></span><br><span class="line">	g := engine.Group(<span class="string">&quot;/user&quot;</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		g.GET(<span class="string">&quot;/add&quot;</span>, controller.UserController&#123;&#125;.Add)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> engine</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>router层要调用控制器, 控制器实现HandlerFunc即可</p>
-</blockquote>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> controller</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/gin-gonic/gin&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> UserController <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(receiver UserController)</span> <span class="title">Add</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">	c.JSON(<span class="number">200</span>, <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;&#123;</span><br><span class="line">		<span class="string">&quot;say&quot;</span>: <span class="string">&quot;hello golang&quot;</span>,</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>模型层增加model.go做数据初始化等操作,本来想要加到config层做数据库初始化,但是考虑到层级调用以及后续开发可能出现的低级错误问题,则将数据库初始化放在了model层</p>
-</blockquote>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> model</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;awesomeProject1/config&quot;</span></span><br><span class="line">	<span class="string">&quot;gorm.io/driver/mysql&quot;</span></span><br><span class="line">	<span class="string">&quot;gorm.io/gorm&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> dbConn *gorm.DB</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InitDb</span><span class="params">()</span></span> &#123;</span><br><span class="line">	dbConn, err := gorm.Open(mysql.New(mysql.Config&#123;</span><br><span class="line">		DriverName: <span class="string">&quot;mysql&quot;</span>,</span><br><span class="line">		DSN:        config.Properties.Db.DSN,</span><br><span class="line">	&#125;), &amp;gorm.Config&#123;&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">    <span class="comment">// 避免框架骨架阶段报变量没有使用错误,特殊需求注释掉</span></span><br><span class="line">	dbConn.DisableAutomaticPing = <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>需要注意的是层级调用不要出现循环调用,调用顺序是 controller-&gt;service-&gt;model, config层可以任意位置被调用.并保持config层的独立性</p>
+<ol>
+<li><p>查看函数堆栈</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) bt 或者 <span class="built_in">where</span></span><br></pre></td></tr></table></figure></li>
+<li><p>跳到第bt的第N帧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f N</span><br></pre></td></tr></table></figure></li>
+<li><p>列出源码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list 或者 l</span><br></pre></td></tr></table></figure></li>
+<li><p>重复上一次命令—回车</p>
+</li>
+<li><p>设置断点，在源程序第N行处 : break/b</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb)<span class="built_in">break</span> 12</span><br></pre></td></tr></table></figure></li>
+<li><p>设置断点，在函数func()入口处</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) <span class="built_in">break</span> fun</span><br></pre></td></tr></table></figure></li>
+<li><p>查看断点信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info <span class="built_in">break</span></span><br></pre></td></tr></table></figure></li>
+<li><p>根据GDB分配给断点的标识符@1、@2…等等来删除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) delete 12</span><br></pre></td></tr></table></figure></li>
+<li><p>运行程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) run</span><br></pre></td></tr></table></figure></li>
+<li><p>单步执行 next/n</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) next</span><br></pre></td></tr></table></figure></li>
+<li><p>继续运行程序 continue</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) <span class="built_in">continue</span></span><br></pre></td></tr></table></figure></li>
+<li><p>打印变量i的值 print/p</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) <span class="built_in">print</span> i</span><br></pre></td></tr></table></figure></li>
+<li><p>打印vector变量前两个元素</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p *(v._M_impl._M_start)@2</span><br></pre></td></tr></table></figure></li>
+<li><p>打印array第60～69的元素</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p array[60]@10</span><br></pre></td></tr></table></figure></li>
+<li><p>打印a的成员b</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p a.b</span><br></pre></td></tr></table></figure></li>
+<li><p>打印a的类型</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) whatis a</span><br></pre></td></tr></table></figure></li>
+<li><p>打印a类型的结构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) ptype a</span><br></pre></td></tr></table></figure></li>
+<li><p>退出函数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) finish</span><br></pre></td></tr></table></figure></li>
+<li><p>退出gdb quit / q</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) quit</span><br></pre></td></tr></table></figure></li>
+</ol>
 
       
     </div>
@@ -288,7 +301,7 @@
 
 
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 </div>

@@ -124,12 +124,12 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -172,7 +172,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://nullhunt.github.io/2021/09/27/phalcon-session-md/">
+    <link itemprop="mainEntityOfPage" href="https://nullhunt.github.io/2021/09/28/php-fpm-status-md/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -185,7 +185,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/09/27/phalcon-session-md/" class="post-title-link" itemprop="url">phalcon自定义session_id</a>
+          <a href="/2021/09/28/php-fpm-status-md/" class="post-title-link" itemprop="url">php-fpm开启status监控</a>
         </h2>
 
         <div class="post-meta-container">
@@ -196,7 +196,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2021-09-27 23:27:42" itemprop="dateCreated datePublished" datetime="2021-09-27T23:27:42+08:00">2021-09-27</time>
+      <time title="创建时间：2021-09-28 11:28:14" itemprop="dateCreated datePublished" datetime="2021-09-28T11:28:14+08:00">2021-09-28</time>
     </span>
       <span class="post-meta-item">
         <span class="post-meta-item-icon">
@@ -216,12 +216,34 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>phalcon基于di容器管理所有服务，session也做为服务被引入。正常情况下要实现自定义session_id只要在session_start前使用session_id函数设置即可。但是，一般逻辑是先检查session是否存在用户信息，如果存在表示登陆，不存在表示游客。要获取session信息必须先session_start，因此想要真正自定义session_id，要在返回cookie头前对session_id进行修改。
-php提供了一个函数session_regenerate_id（），允许使用新生成的会话 ID 更新现有会话 ID，并且不会修改用户信息。基于这个思路，注入di容器的session服务如下</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$di</span>-&gt;setShared(<span class="string">&#x27;session&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="variable">$session</span> = <span class="keyword">new</span> <span class="class"><span class="keyword">class</span>() <span class="keyword">extends</span> <span class="title">SessionManager</span></span>&#123;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$factory</span> = <span class="keyword">new</span> SerializerFactory();</span><br><span class="line">    <span class="variable">$adapterFactory</span> = <span class="keyword">new</span> AdapterFactory(<span class="variable">$factory</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="variable">$redis</span> = <span class="keyword">new</span> <span class="class"><span class="keyword">class</span>($<span class="title">adapterFactory</span>, <span class="title">array_merge</span>([</span></span><br><span class="line"><span class="class">        &quot;<span class="title">lifetime</span>&quot; =&gt; 86400,</span></span><br><span class="line"><span class="class">        &quot;<span class="title">prefix</span>&quot; =&gt; &#x27;<span class="title">sess</span>-<span class="title">ph</span>-&#x27;,</span></span><br><span class="line"><span class="class">    ], $<span class="title">this</span>-&gt;<span class="title">getConfig</span>()-&gt;<span class="title">redis</span>-&gt;<span class="title">toArray</span>()[0])) <span class="keyword">extends</span> <span class="title">SessionRedis</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">private</span> <span class="variable">$userSid</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getUserSid</span>(<span class="params"></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;userSid;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> string $userSid</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setUserSid</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$userSid</span></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;userSid = <span class="variable">$userSid</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 这个函数有用，不要删除</span></span><br><span class="line"><span class="comment">         * phalcon在session start时调用session_set_save_handler函数设置当前类作为session</span></span><br><span class="line"><span class="comment">         * 适配器，create_sid对SessionHandler::create_sid方法进行重写，在调用本类regenerateId时会调用php的session_regenerate_id函数。</span></span><br><span class="line"><span class="comment">         * session_regenerate_id函数内部调用适配器的create_sid方法生成sid，也就是这个方法，当前匿名类对外暴露sid的getter和setter方法实现</span></span><br><span class="line"><span class="comment">         * 自定义sid，方便控制sid生成和获取任意用户的session信息</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">create_sid</span>(<span class="params"></span>) :<span class="title">string</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">    </span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;getUserSid()))&#123;</span><br><span class="line">                <span class="comment">// 固定给一个无效的sessid, 这个无法解密，也就是说解密失败的sessid，可以认为就是游客</span></span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;guest_&quot;</span> . md5(<span class="string">&quot;pref_&quot;</span> . di()-&gt;get(<span class="string">&quot;request&quot;</span>)-&gt;getClientAddress(<span class="literal">true</span>));</span><br><span class="line">            &#125;</span><br><span class="line">    </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;getUserSid();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="variable">$session</span>-&gt;setAdapter(<span class="variable">$redis</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="variable">$session</span>-&gt;start();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$session</span>;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+          <blockquote>
+<ol>
+<li>php-fpm.ini增加配置</li>
+</ol>
+</blockquote>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">pm.status_path</span> = /<span class="number">4</span>bc020cd40b51db16c85e685b86da43b</span><br></pre></td></tr></table></figure>
 
-<p>redis存储session，提高效率，session服务对外开放setUserSid方法，用户登陆时重新生成session_id即可。可以在生成用户sid过程中对用户之前的sid进行清理，更新sid的同时，避免sid堆满内存。游客用户可以使用ip作为唯一sid，如果没有特殊需求，固定一个sid更好一点</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">$this</span>-&gt;session-&gt;getAdapter()-&gt;setUserSid(<span class="keyword">$this</span>-&gt;generateUserSessId(<span class="number">1</span>));</span><br><span class="line"><span class="keyword">$this</span>-&gt;session-&gt;regenerateId();</span><br><span class="line"><span class="keyword">$this</span>-&gt;session-&gt;set(<span class="string">&quot;user_info&quot;</span>, <span class="variable">$userInfo</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ol start="2">
+<li>nginx增加本地配置</li>
+</ol>
+</blockquote>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    listen 3380<span class="comment">;</span></span><br><span class="line">    server_name  127.0.0.1<span class="comment">;</span></span><br><span class="line">    index index.html index.htm index.php<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">    error_page   404   /404.html<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">    location ~ /(4bc020cd40b51db16c85e685b86da43b)$</span><br><span class="line">    &#123;</span><br><span class="line">        fastcgi_pass  unix:/tmp/php-cgi.sock<span class="comment">;</span></span><br><span class="line">        include fastcgi.conf<span class="comment">;</span></span><br><span class="line">        fastcgi_param SCRIPT_FILENAME $fastcgi_script_name<span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol start="3">
+<li>检查配置是否正确</li>
+</ol>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -t &amp;&amp; php-fpm -t</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol start="3">
+<li>重启php-fpm, nginx 本地访问</li>
+</ol>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">systemctl restart php-fpm &amp;&amp; systemctl restart nginx</span><br><span class="line">curl http://127.0.0.1:3380/4bc020cd40b51db16c85e685b86da43b</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -241,7 +263,7 @@ php提供了一个函数session_regenerate_id（），允许使用新生成的�
 
 
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/15/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/17/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/15/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/17/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 </div>
