@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"nullhunt.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="京东新搞的华硕天选笔记本，刷成ubuntu后蓝牙鼠标一直连接不上，后来发现蓝牙本身就搜索不出任何设备，但是ubuntu蓝牙管理模块显示正常,执行  dmesg | grep -i bluetooth 命令只有如下报错 1Bluetooth: hci0: Failed to read codec capabilities (-22)  虽然不清楚这个报错具体是因为什么，也许和这个报错也没什么关系。但">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次ubuntu蓝牙鼠标问题处理-linux内核编译">
+<meta property="og:url" content="https://nullhunt.github.io/2024/12/11/20241212-linux-image-driver-problem/index.html">
+<meta property="og:site_name" content="nullhunt">
+<meta property="og:description" content="京东新搞的华硕天选笔记本，刷成ubuntu后蓝牙鼠标一直连接不上，后来发现蓝牙本身就搜索不出任何设备，但是ubuntu蓝牙管理模块显示正常,执行  dmesg | grep -i bluetooth 命令只有如下报错 1Bluetooth: hci0: Failed to read codec capabilities (-22)  虽然不清楚这个报错具体是因为什么，也许和这个报错也没什么关系。但">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nullhunt.github.io/images/image-20241214205336013.png">
+<meta property="og:image" content="https://nullhunt.github.io/2024/12/11/20241212-linux-image-driver-problem/images/image-20241214211606055.png">
+<meta property="og:image" content="https://nullhunt.github.io/2024/12/11/20241212-linux-image-driver-problem/images/image-20241214225553109.png">
+<meta property="og:image" content="https://nullhunt.github.io/images/image-20241214231321237.png">
+<meta property="og:image" content="https://nullhunt.github.io/images/image-20241215000515757.png">
+<meta property="og:image" content="https://nullhunt.github.io/images/image-20241215000837772.png">
+<meta property="article:published_time" content="2024-12-10T19:15:03.000Z">
+<meta property="article:modified_time" content="2025-01-24T08:41:32.865Z">
+<meta property="article:author" content="山丘">
+<meta property="article:tag" content="ubuntu,蓝牙鼠标,M600">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nullhunt.github.io/images/image-20241214205336013.png">
+
+
+<link rel="canonical" href="https://nullhunt.github.io/2024/12/11/20241212-linux-image-driver-problem/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://nullhunt.github.io/2024/12/11/20241212-linux-image-driver-problem/","path":"2024/12/11/20241212-linux-image-driver-problem/","title":"记一次ubuntu蓝牙鼠标问题处理-linux内核编译"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>记一次ubuntu蓝牙鼠标问题处理-linux内核编译 | nullhunt</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">nullhunt</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <img src="/images/head.jpg">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">山丘</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/anynone" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;anynone" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://nullhunt.github.io/2024/12/11/20241212-linux-image-driver-problem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="山丘">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="nullhunt">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          记一次ubuntu蓝牙鼠标问题处理-linux内核编译
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-12-11 03:15:03" itemprop="dateCreated datePublished" datetime="2024-12-11T03:15:03+08:00">2024-12-11</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2025-01-24 16:41:32" itemprop="dateModified" datetime="2025-01-24T16:41:32+08:00">2025-01-24</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>京东新搞的华硕天选笔记本，刷成ubuntu后蓝牙鼠标一直连接不上，后来发现蓝牙本身就搜索不出任何设备，但是ubuntu蓝牙管理模块显示正常,执行  <code>dmesg | grep -i bluetooth</code> 命令只有如下报错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Bluetooth: hci0: Failed to <span class="built_in">read</span> codec capabilities (-22)</span><br></pre></td></tr></table></figure>
+
+<p>虽然不清楚这个报错具体是因为什么，也许和这个报错也没什么关系。但是既然搜索不到，估计大概也许可能确定是驱动出了问题</p>
+<blockquote>
+<p>查看蓝牙设备信息</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsusb </span><br></pre></td></tr></table></figure>
+
+<img src="/images/image-20241214205336013.png" alt="image-20241214205336013" style="zoom:100%;margin-left:0px;" />
+
+<p>注意看厂商和设备码：<code>0489:e123</code></p>
+<p>当前ubuntu内核版本：<code>6.8.0-49-generic</code></p>
+<blockquote>
+<p>到linux内核源码 drivers/bluetooth/btusb.c 找找是否存在 0489:e123</p>
+</blockquote>
+<p>结果是没有，所以系统并没有识别到这个usb设备。</p>
+<blockquote>
+<p>在最新内核tag检索设备码  <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/v6.12/drivers/bluetooth/btusb.c">https://github.com/torvalds/linux/blob/v6.12/drivers/bluetooth/btusb.c</a></p>
+</blockquote>
+<p>结果是没有，瞬间塌方了。正打算随便写到蓝牙配置里时，发现master分支存在设备码<code>0489, e123</code>, 同时发现对应的patch。按照提示说明，蓝牙设备型号是RTL8852BE </p>
+<img src="images/image-20241214211606055.png" alt="image-20241214211606055" style="zoom:100%;margin-left:0px;" />
+
+<blockquote>
+<p>所以需要做得就是下载内核源码，增加蓝牙驱动配置，重新编译内核，这里选择了6.9.12内核作为升级内核版本</p>
+</blockquote>
+<p>国内源地址:<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/kernel/v6.x/linux-6.9.12.tar.gz">https://mirrors.tuna.tsinghua.edu.cn/kernel/v6.x/linux-6.9.12.tar.gz</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/kernel/v6.x/linux-6.9.12.tar.gz</span><br><span class="line">tar xf linux-6.9.12.tar.gz</span><br><span class="line"><span class="built_in">cd</span> linux-6.9.12.tar.gz</span><br><span class="line"><span class="comment">## 按照patch内容，修改btusb.c, 或者用patch命令，我这里直接修改的文件</span></span><br></pre></td></tr></table></figure>
+<img src="images/image-20241214225553109.png" alt="image-20241214225553109" style="zoom:80%;margin-left:0px;" />
+
+<blockquote>
+<p>编译内核</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">##清理</span></span><br><span class="line">make mrproper</span><br><span class="line">make clean</span><br><span class="line"></span><br><span class="line"><span class="comment">## 复制配置过来</span></span><br><span class="line">cp /boot/config-6.8.0-49-generic .config</span><br><span class="line"><span class="comment">## make menuconfig 看情况是否要修改配置，不需要不执行</span></span><br><span class="line"><span class="comment">## 编译安装</span></span><br><span class="line">make -j 32</span><br><span class="line">make modules -j32</span><br><span class="line">make modules_install</span><br><span class="line">make install</span><br><span class="line">mkinitramfs -o /boot/initrd.img-6.9.12</span><br><span class="line">update-initramfs -c -k 6.9.12</span><br><span class="line">update-grub2</span><br><span class="line"><span class="comment">## 编译过程中报了个错，缺少对应的firmware，下载最新的复制</span></span><br><span class="line">wget https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-20241210.tar.gz</span><br><span class="line">tar xf linux-firmware-20241210.tar.gz</span><br><span class="line">cp linux-firmware-20241210/rtl_nic/* /lib/firmware/rtl_nic/</span><br><span class="line"><span class="comment">## 再次执行 make modules_install 和make install, 报错消失</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>重启，默认应该是从新的内核进入</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reboot</span><br></pre></td></tr></table></figure>
+
+<p>重启后尝试搜索设备，此时设备可以搜索到了，蓝牙耳机和鼠标都正常连接，耳机声音正常，窃喜。但是鼠标无法使用，移动鼠标没反应，继续搞心态。</p>
+<p>找到一篇帖子，说到可能是因为bluez版本底，需要升级</p>
+<p><a target="_blank" rel="noopener" href="https://superuser.com/questions/1697648/lenovo-legion-m600-wireless-bluetooth-mouse-connected-and-paired-yet-not-working">https://superuser.com/questions/1697648/lenovo-legion-m600-wireless-bluetooth-mouse-connected-and-paired-yet-not-working</a></p>
+<p>按照这个说法，这是极少数设备的问题，而我刚好赶上了</p>
+<p><img src="/images/image-20241214231321237.png" alt="image-20241214231321237"></p>
+<blockquote>
+<p>升级bluez</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载5.x最新版本bluez，解压</span></span><br><span class="line">wget https://www.kernel.org/pub/linux/bluetooth/bluez-5.69.tar.gz</span><br><span class="line"><span class="comment">## 安装依赖</span></span><br><span class="line">apt-get install libglib2.0-dev libdbus-glib-1-dev libical-dev libreadline6-dev</span><br><span class="line"><span class="comment">## 编译安装</span></span><br><span class="line">./configure</span><br><span class="line">make -j 32</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>重启</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reboot</span><br></pre></td></tr></table></figure>
+
+<p>重启后再次连接蓝牙鼠标，鼠标运行正常了，测试长时间不操作后鼠标能够重新唤醒，鼠标开关关闭再次打开能够连接上，速度很快。检查了/var/lib/bluetooth下的蓝牙鼠标info文件，interval速度应该是够了，如下</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">[General]</span></span><br><span class="line"><span class="attr">Name</span>=<span class="string">Legion M600 Mouse</span></span><br><span class="line"><span class="attr">Appearance</span>=<span class="string">0x03c2</span></span><br><span class="line"><span class="attr">AddressType</span>=<span class="string">public</span></span><br><span class="line"><span class="attr">SupportedTechnologies</span>=<span class="string">LE;</span></span><br><span class="line"><span class="attr">Trusted</span>=<span class="string">true</span></span><br><span class="line"><span class="attr">.....</span></span><br><span class="line"><span class="attr">忽略很长一段内容</span></span><br><span class="line"><span class="attr">.....</span></span><br><span class="line"><span class="attr">[ConnectionParameters]</span></span><br><span class="line"><span class="attr">MinInterval</span>=<span class="string">6</span></span><br><span class="line"><span class="attr">MaxInterval</span>=<span class="string">6</span></span><br><span class="line"><span class="attr">Latency</span>=<span class="string">3</span></span><br><span class="line"><span class="attr">Timeout</span>=<span class="string">300</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>又是折腾的一天</p>
+</blockquote>
+<p><img src="/images/image-20241215000515757.png" alt="image-20241215000515757"></p>
+<p><img src="/images/image-20241215000837772.png" alt="image-20241215000837772"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ubuntu-%E8%93%9D%E7%89%99%E9%BC%A0%E6%A0%87-M600/" rel="tag"># ubuntu,蓝牙鼠标,M600</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/09/30/linux-qt5-inputcontext/" rel="prev" title="mint linux解决qtcreator无法输入中文问题">
+                  <i class="fa fa-chevron-left"></i> mint linux解决qtcreator无法输入中文问题
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">山丘</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
